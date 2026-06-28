@@ -225,6 +225,24 @@
   .copied{font-size:12px;color:#22c55e;font-weight:600;align-self:center;opacity:0;transition:opacity .2s;}
   .copied.show{opacity:1;}
 
+  /* ── Styles de mise en valeur (**mot**) ── */
+  .hl-highlight .hl{
+    background:var(--brand-accent);color:#fff;
+    padding:0 0.12em 0.06em;border-radius:0.12em;
+  }
+  .slide.orange.hl-highlight .hl{background:#fff;color:var(--brand-dark);}
+  .hl-italic .hl{font-style:italic;}
+
+  /* ── Sélecteur de style de mise en valeur ── */
+  .hl-selector{display:flex;gap:6px;flex-wrap:wrap;}
+  .hl-btn{
+    background:#253347;color:#94a3b8;border:1px solid #2d3f55;border-radius:6px;
+    padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;
+    transition:background .15s,border-color .15s,color .15s;
+  }
+  .hl-btn.active{background:var(--brand-accent);border-color:var(--brand-accent);color:#fff;}
+  .hl-btn:hover:not(.active){border-color:var(--brand-accent);color:var(--brand-accent);}
+
   /* ── Sélecteur de typo ── */
   .font-selector{display:flex;gap:6px;flex-wrap:wrap;}
   .font-btn{
@@ -444,7 +462,14 @@
       <textarea id="advice" maxlength="180" placeholder="Ex : Travaillez le **renforcement positif** dès les premiers pas."></textarea>
       <div class="count" id="advice-count"></div>
     </div>
-    <p style="font-size:10.5px;color:#64748b;line-height:1.4;margin-top:-4px;margin-bottom:16px;">Entoure les mots importants de <strong>**double astérisques**</strong> pour les surligner dans ta couleur de marque sur les slides.</p>
+    <div style="margin-top:-4px;margin-bottom:16px;">
+      <p style="font-size:10.5px;color:#64748b;line-height:1.4;margin-bottom:8px;">Entoure les mots importants de <strong>**double astérisques**</strong> — choisis leur style :</p>
+      <div class="hl-selector">
+        <button class="hl-btn active" data-hl="color">Couleur</button>
+        <button class="hl-btn" data-hl="highlight">Surlignage</button>
+        <button class="hl-btn" data-hl="italic">Italique</button>
+      </div>
+    </div>
 
     <div class="field">
       <label>Hashtags slide 1<span class="ht-count" id="ht1-count"></span><button type="button" class="regen-btn" data-field="hashtags1">↻ Régénérer</button></label>
@@ -581,7 +606,8 @@
       color2:    $('cfg-color-2').value,
       color3:    $('cfg-color-3').value,
       font:      currentFont,
-      template:  currentTemplate
+      template:  currentTemplate,
+      hlStyle:   currentHlStyle
     }));
   }
 
@@ -613,6 +639,17 @@
     document.querySelectorAll('.font-btn').forEach(b => b.classList.toggle('active', b.dataset.font === fontKey));
     const char = FONT_WATERMARKS[fontKey] || '"';
     document.querySelectorAll('.quote-watermark').forEach(el => el.textContent = char);
+  }
+
+  let currentHlStyle = 'color';
+
+  function applyHlStyle(style){
+    currentHlStyle = style;
+    document.querySelectorAll('.slide').forEach(s => {
+      s.classList.remove('hl-highlight','hl-italic');
+      if(style !== 'color') s.classList.add('hl-' + style);
+    });
+    document.querySelectorAll('.hl-btn').forEach(b => b.classList.toggle('active', b.dataset.hl === style));
   }
 
   function applyTemplate(tpl){
@@ -654,6 +691,7 @@
     applyColors(c1, c2, c3);
     if(cfg.font)     applyFont(cfg.font);
     if(cfg.template) applyTemplate(cfg.template);
+    if(cfg.hlStyle)  applyHlStyle(cfg.hlStyle);
     const logo = localStorage.getItem('instagen_logo');
     if(logo){
       applyLogoToSlides(logo);
@@ -696,6 +734,11 @@
 
   document.querySelectorAll('.tpl-btn').forEach(btn => btn.addEventListener('click', () => {
     applyTemplate(btn.dataset.tpl);
+    saveConfig();
+  }));
+
+  document.querySelectorAll('.hl-btn').forEach(btn => btn.addEventListener('click', () => {
+    applyHlStyle(btn.dataset.hl);
     saveConfig();
   }));
 
@@ -907,6 +950,7 @@
     });
     applyFont(currentFont);
     applyTemplate(currentTemplate);
+    applyHlStyle(currentHlStyle);
     ['myth','truth','advice'].forEach(f => {
       $('label-'+f).textContent  = cfg.fields[f].label;
       $(f).placeholder           = cfg.fields[f].placeholder;
