@@ -157,7 +157,7 @@
   .slide.orange .badge-label{color:#fff;}
   .slide.orange .hl{color:var(--nature-900);}
   .slide.orange .slide-footer{border-top-color:rgba(40,57,74,.2);}
-  .slide.orange .quote-watermark{color:#fff;opacity:.18;}
+  .slide.orange .quote-watermark{color:#fff;opacity:var(--wm-opacity,.18);}
 
   .slide-badge{display:flex;align-items:center;gap:24px;margin-bottom:56px;}
   .badge-num{
@@ -179,10 +179,10 @@
     position:absolute;top:-100px;left:-100px;
     font-family:Georgia,'Times New Roman',serif;
     font-size:1440px;font-weight:700;line-height:1;
-    color:var(--orange);opacity:.13;pointer-events:none;
+    color:var(--orange);opacity:var(--wm-opacity,.13);pointer-events:none;
   }
-  .slide.dark .quote-watermark{opacity:.16;}
-  .slide.light .quote-watermark{color:#0E3C6B;}
+  .slide.dark .quote-watermark{opacity:var(--wm-opacity,.16);}
+  .slide.light .quote-watermark{color:var(--brand-dark);}
 
   .slide-bg-layer{
     position:absolute;inset:0;background-size:cover;background-position:center;
@@ -232,6 +232,11 @@
   }
   .slide.orange.hl-highlight .hl{background:#fff;color:var(--brand-dark);}
   .hl-italic .hl{font-style:italic;}
+
+  /* ── Slider opacité filigrane ── */
+  .slider-row{display:flex;align-items:center;gap:10px;}
+  .slider-row input[type="range"]{flex:1;accent-color:var(--brand-accent);cursor:pointer;}
+  .slider-val{font-size:12px;color:#94a3b8;font-weight:600;min-width:34px;text-align:right;}
 
   /* ── Sélecteur de style de mise en valeur ── */
   .hl-selector{display:flex;gap:6px;flex-wrap:wrap;}
@@ -492,6 +497,14 @@
     </div>
 
     <div class="field">
+      <label>Opacité du filigrane</label>
+      <div class="slider-row">
+        <input type="range" id="wm-opacity" min="0" max="50" step="1" value="13">
+        <span class="slider-val" id="wm-opacity-val">13%</span>
+      </div>
+    </div>
+
+    <div class="field">
       <label>Photo de fond (filigrane)</label>
       <input type="file" id="bg-photo" accept="image/*">
       <button type="button" id="bg-remove" style="margin-top:8px;background:#334155;display:none;">Retirer la photo</button>
@@ -607,7 +620,8 @@
       color3:    $('cfg-color-3').value,
       font:      currentFont,
       template:  currentTemplate,
-      hlStyle:   currentHlStyle
+      hlStyle:   currentHlStyle,
+      wmOpacity: +$('wm-opacity').value
     }));
   }
 
@@ -692,6 +706,7 @@
     if(cfg.font)     applyFont(cfg.font);
     if(cfg.template) applyTemplate(cfg.template);
     if(cfg.hlStyle)  applyHlStyle(cfg.hlStyle);
+    applyWmOpacity(cfg.wmOpacity ?? 13);
     const logo = localStorage.getItem('instagen_logo');
     if(logo){
       applyLogoToSlides(logo);
@@ -1088,6 +1103,17 @@
         btn.disabled=false; btn.textContent=origText;
       }
     });
+  });
+
+  // ── Opacité du filigrane ──
+  function applyWmOpacity(val){
+    document.documentElement.style.setProperty('--wm-opacity', val / 100);
+    $('wm-opacity').value = val;
+    $('wm-opacity-val').textContent = val + '%';
+  }
+  $('wm-opacity').addEventListener('input', () => {
+    applyWmOpacity(+$('wm-opacity').value);
+    saveConfig();
   });
 
   // ── Photo de fond ──
