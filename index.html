@@ -419,8 +419,8 @@
       <div style="font-size:10.5px;color:#64748b;margin-top:5px;line-height:1.4;">Ta clé reste dans ton navigateur — elle n'est envoyée qu'à l'API Anthropic. Coût : quelques centimes par génération.</div>
     </div>
     <div class="field">
-      <label>Sujet (optionnel)</label>
-      <input type="text" id="ai-topic" placeholder="Laisse vide pour une suggestion automatique">
+      <label>Sujet <span style="color:#f87171;font-weight:700">*</span></label>
+      <input type="text" id="ai-topic" placeholder="Ex : le collier étrangleur">
     </div>
     <button class="alt" id="ai-generate" style="width:100%">✨ Générer via IA</button>
     <div class="ai-status" id="ai-status"></div>
@@ -595,6 +595,14 @@
   let currentFont     = 'outfit';
   let currentTemplate = 'tpl-1';
 
+  const FONT_WATERMARKS = {
+    outfit:     '"',
+    playfair:   '“',
+    montserrat: '«',
+    raleway:    '”',
+    'dm-serif': '‘'
+  };
+
   function applyFont(fontKey){
     currentFont = fontKey;
     const allFonts = ['outfit','playfair','montserrat','raleway','dm-serif'];
@@ -603,6 +611,8 @@
       if(fontKey !== 'outfit') s.classList.add('font-' + fontKey);
     });
     document.querySelectorAll('.font-btn').forEach(b => b.classList.toggle('active', b.dataset.font === fontKey));
+    const char = FONT_WATERMARKS[fontKey] || '"';
+    document.querySelectorAll('.quote-watermark').forEach(el => el.textContent = char);
   }
 
   function applyTemplate(tpl){
@@ -818,7 +828,7 @@
   // ── Configuration par type de post ──
   const POST_TYPE_CONFIG = {
     'idee-recue': {
-      aiTopicPlaceholder: 'Ex : le collier étrangleur — laisse vide pour une suggestion',
+      aiTopicPlaceholder: 'Ex : le collier étrangleur',
       slides: [
         { theme:'orange', badgeLabel:'Idée reçue'  },
         { theme:'dark',   badgeLabel:'La réalité'  },
@@ -838,9 +848,7 @@
         hashtags1:'hashtags du slide 1', hashtags2:'hashtags du slide 2', hashtags3:'hashtags du slide 3',
         hashtag_audience:'hashtag audience méthodes coercitives'
       },
-      buildPrompt: topic => topic
-        ? `Crée un post Instagram qui déconstruit cette idée reçue sur le comportement canin : "${topic}".`
-        : 'Choisis une idée reçue fréquente sur le comportement canin et crée un post Instagram qui la déconstruit.',
+      buildPrompt: topic => `Crée un post Instagram qui déconstruit cette idée reçue sur le comportement canin : "${topic}".`,
       buildRegenPrompt: (label,topic,ctx) => `Régénère uniquement le bloc "${label}" pour ce post Instagram${topic?` sur : "${topic}"`:''}${ctx}.`,
       schemaProps: {
         myth:      { type:'string', description:"L'idée reçue, 1-2 phrases percutantes (20 mots max). Entoure les mots importants de **double astérisques**." },
@@ -853,7 +861,7 @@
       }
     },
     'pro-tips': {
-      aiTopicPlaceholder: 'Ex : fortes chaleurs et activités de flair — laisse vide pour une suggestion',
+      aiTopicPlaceholder: 'Ex : fortes chaleurs et activités de flair',
       slides: [
         { theme:'light',  badgeLabel:'Le savais-tu ?' },
         { theme:'dark',   badgeLabel:'Pourquoi'       },
@@ -873,9 +881,7 @@
         hashtags1:'hashtags du slide 1', hashtags2:'hashtags du slide 2', hashtags3:'hashtags du slide 3',
         hashtag_audience:'hashtag audience méthodes coercitives'
       },
-      buildPrompt: topic => topic
-        ? `Crée un post Instagram "Le savais-tu ?" sur ce conseil canin : "${topic}". Structure : tip percutant / explication scientifique ou éthologique / action concrète.`
-        : 'Choisis un conseil pratique sur le bien-être canin et crée un post Instagram "Le savais-tu ?" : tip percutant / explication / action concrète.',
+      buildPrompt: topic => `Crée un post Instagram "Le savais-tu ?" sur ce conseil canin : "${topic}". Structure : tip percutant / explication scientifique ou éthologique / action concrète.`,
       buildRegenPrompt: (label,topic,ctx) => `Régénère uniquement le bloc "${label}" pour ce post "Le savais-tu ?"${topic?` sur : "${topic}"`:''}${ctx}.`,
       schemaProps: {
         myth:      { type:'string', description:"Le tip principal, 1 phrase percutante (20 mots max). Entoure les mots importants de **double astérisques**." },
@@ -990,6 +996,8 @@
     const statusEl = $('ai-status');
     const btn      = $('ai-generate');
     if(!apiKey){ statusEl.textContent='Renseigne ta clé API Anthropic ci-dessus.'; statusEl.className='ai-status error'; return; }
+    const topic = $('ai-topic').value.trim();
+    if(!topic){ statusEl.textContent='Indique un sujet pour la génération.'; statusEl.className='ai-status error'; $('ai-topic').focus(); return; }
     localStorage.setItem('anthropic_api_key', apiKey);
     btn.disabled=true; btn.textContent='Génération en cours...';
     statusEl.textContent=''; statusEl.className='ai-status';
