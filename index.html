@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="InstaGen">
 <link rel="apple-touch-icon" href="icon.svg">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@400;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:wght@400;700;800&family=Raleway:wght@400;600;700;800&display=swap">
 <style>
   :root{
     --brand-accent:#f97316;
@@ -225,12 +225,77 @@
   .copied{font-size:12px;color:#22c55e;font-weight:600;align-self:center;opacity:0;transition:opacity .2s;}
   .copied.show{opacity:1;}
 
+  /* ── Sélecteur de typo ── */
+  .font-selector{display:flex;gap:6px;flex-wrap:wrap;}
+  .font-btn{
+    flex:1;min-width:0;
+    background:#253347;color:#94a3b8;border:1px solid #2d3f55;border-radius:6px;
+    padding:7px 10px;font-size:13.5px;font-weight:700;cursor:pointer;
+    transition:background .15s,border-color .15s,color .15s;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .font-btn.active{background:var(--brand-accent);border-color:var(--brand-accent);color:#fff;}
+  .font-btn:hover:not(.active){border-color:var(--brand-accent);color:var(--brand-accent);}
+
+  /* ── Sélecteur de template ── */
+  .tpl-selector{display:flex;gap:8px;margin-bottom:24px;}
+  .tpl-btn{
+    background:#172031;color:#94a3b8;border:1.5px solid #2d3f55;border-radius:8px;
+    padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;
+    display:flex;align-items:center;gap:7px;
+    transition:background .15s,border-color .15s,color .15s;
+  }
+  .tpl-btn.active{background:var(--brand-accent);border-color:var(--brand-accent);color:#fff;}
+  .tpl-btn:hover:not(.active){border-color:var(--brand-accent);color:var(--brand-accent);}
+  .tpl-icon{width:28px;height:22px;flex-shrink:0;opacity:.7;}
+  .tpl-btn.active .tpl-icon{opacity:1;}
+
+  /* ── Fonts pour les slides ── */
+  .slide.font-playfair  {font-family:'Playfair Display',serif;}
+  .slide.font-montserrat{font-family:'Montserrat',sans-serif;}
+  .slide.font-raleway   {font-family:'Raleway',sans-serif;}
+  .slide.font-dm-serif  {font-family:'DM Serif Display',serif;}
+
+  /* ── Template 2 : Édito ── */
+  .tpl-2 .slide-badge{
+    flex-direction:row;align-items:center;justify-content:space-between;
+    gap:0;margin-bottom:50px;padding-bottom:36px;border-bottom:2px solid;
+  }
+  .tpl-2.slide.orange .slide-badge{border-bottom-color:rgba(255,255,255,.4);}
+  .tpl-2.slide.dark   .slide-badge{border-bottom-color:rgba(255,255,255,.18);}
+  .tpl-2.slide.light  .slide-badge{border-bottom-color:rgba(0,0,0,.12);}
+  .tpl-2 .badge-num{
+    order:2;width:84px;height:84px;border-radius:50%;font-size:38px;
+  }
+  .tpl-2.slide.orange .badge-num{background:transparent;border:4px solid #fff;color:#fff;}
+  .tpl-2.slide.dark   .badge-num{background:transparent;border:4px solid var(--brand-accent);color:var(--brand-accent);}
+  .tpl-2.slide.light  .badge-num{background:transparent;border:4px solid var(--brand-dark);color:var(--brand-dark);}
+  .tpl-2 .badge-label{order:1;font-size:38px;font-weight:700;}
+  .tpl-2.slide.light .badge-label{color:var(--brand-dark);}
+  .tpl-2 .slide-footer{justify-content:flex-end;border-top:none;padding-top:0;}
+
+  /* ── Template 3 : Centré ── */
+  .tpl-3{align-items:center;text-align:center;}
+  .tpl-3 .slide-badge{flex-direction:column;align-items:center;gap:18px;margin-bottom:50px;}
+  .tpl-3 .badge-num{border-radius:50%;width:100px;height:100px;font-size:48px;}
+  .tpl-3 .badge-label{font-size:34px;letter-spacing:.15em;}
+  .tpl-3 .slide-headline{width:100%;}
+  .tpl-3 .slide-footer{
+    border-top:none;padding-top:0;height:auto;
+    flex-direction:column;gap:18px;
+  }
+  .tpl-3 .slide-footer::before{
+    content:'';display:block;width:120px;height:2px;background:currentColor;opacity:.25;
+  }
+
   @media(max-width:860px){
     body{padding:20px 16px 50px;}
     .layout{grid-template-columns:1fr;grid-template-areas:"content" "right" "ai";gap:20px;}
     .config-inner{grid-template-columns:1fr;}
     .carousel{justify-content:center;}
     .captions-wrap{max-width:100%;}
+    .tpl-selector{flex-wrap:wrap;}
+    .font-selector .font-btn{flex:none;}
   }
 </style>
 </head>
@@ -280,6 +345,16 @@
         <input type="text" id="cfg-color-3-hex" class="color-hex" placeholder="#eef7ff" maxlength="7">
       </div>
     </div>
+    <div class="config-field full">
+      <label>Typographie</label>
+      <div class="font-selector">
+        <button class="font-btn active" data-font="outfit"      style="font-family:'Outfit',sans-serif">Outfit</button>
+        <button class="font-btn"        data-font="playfair"    style="font-family:'Playfair Display',serif">Playfair</button>
+        <button class="font-btn"        data-font="montserrat"  style="font-family:'Montserrat',sans-serif">Montserrat</button>
+        <button class="font-btn"        data-font="raleway"     style="font-family:'Raleway',sans-serif">Raleway</button>
+        <button class="font-btn"        data-font="dm-serif"    style="font-family:'DM Serif Display',serif">DM Serif</button>
+      </div>
+    </div>
     <div class="config-field">
       <label>Logo (pied de slide)</label>
       <div class="logo-row">
@@ -296,6 +371,42 @@
 <div class="type-selector">
   <button class="type-btn active" data-type="idee-recue">Idée reçue</button>
   <button class="type-btn" data-type="pro-tips">💡 Le savais-tu ?</button>
+</div>
+
+<!-- ── Sélecteur de template ── -->
+<div class="tpl-selector">
+  <button class="tpl-btn active" data-tpl="tpl-1">
+    <svg class="tpl-icon" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="1" width="8" height="8" rx="1.5" fill="currentColor"/>
+      <rect x="11" y="3" width="16" height="2.5" rx="1" fill="currentColor" opacity=".7"/>
+      <rect x="11" y="7" width="10" height="2" rx="1" fill="currentColor" opacity=".4"/>
+      <rect x="1" y="12" width="26" height="2" rx="1" fill="currentColor" opacity=".5"/>
+      <rect x="1" y="16" width="26" height="2" rx="1" fill="currentColor" opacity=".5"/>
+      <rect x="6" y="20" width="16" height="1.5" rx=".75" fill="currentColor" opacity=".35"/>
+    </svg>
+    Block
+  </button>
+  <button class="tpl-btn" data-tpl="tpl-2">
+    <svg class="tpl-icon" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="1" width="14" height="2.5" rx="1" fill="currentColor" opacity=".7"/>
+      <circle cx="24" cy="2.5" r="3" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="1" y="6" width="26" height="1" rx=".5" fill="currentColor" opacity=".3"/>
+      <rect x="1" y="10" width="26" height="2.5" rx="1" fill="currentColor" opacity=".55"/>
+      <rect x="1" y="14" width="20" height="2.5" rx="1" fill="currentColor" opacity=".55"/>
+      <rect x="11" y="20" width="16" height="1.5" rx=".75" fill="currentColor" opacity=".35"/>
+    </svg>
+    Édito
+  </button>
+  <button class="tpl-btn" data-tpl="tpl-3">
+    <svg class="tpl-icon" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="14" cy="4" r="3" fill="currentColor" opacity=".8"/>
+      <rect x="6" y="9" width="16" height="2" rx="1" fill="currentColor" opacity=".5"/>
+      <rect x="3" y="13" width="22" height="2.5" rx="1" fill="currentColor" opacity=".55"/>
+      <rect x="6" y="17" width="16" height="2" rx="1" fill="currentColor" opacity=".4"/>
+      <rect x="10" y="20.5" width="8" height="1" rx=".5" fill="currentColor" opacity=".3"/>
+    </svg>
+    Centré
+  </button>
 </div>
 
 <div class="layout">
@@ -468,7 +579,9 @@
       website:   $('cfg-website').value.trim(),
       color1:    $('cfg-color-1').value,
       color2:    $('cfg-color-2').value,
-      color3:    $('cfg-color-3').value
+      color3:    $('cfg-color-3').value,
+      font:      currentFont,
+      template:  currentTemplate
     }));
   }
 
@@ -477,6 +590,29 @@
     s.setProperty('--brand-accent', accent);
     s.setProperty('--brand-dark', dark);
     s.setProperty('--brand-light', light);
+  }
+
+  let currentFont     = 'outfit';
+  let currentTemplate = 'tpl-1';
+
+  function applyFont(fontKey){
+    currentFont = fontKey;
+    const allFonts = ['outfit','playfair','montserrat','raleway','dm-serif'];
+    document.querySelectorAll('.slide').forEach(s => {
+      allFonts.forEach(k => s.classList.remove('font-' + k));
+      if(fontKey !== 'outfit') s.classList.add('font-' + fontKey);
+    });
+    document.querySelectorAll('.font-btn').forEach(b => b.classList.toggle('active', b.dataset.font === fontKey));
+  }
+
+  function applyTemplate(tpl){
+    currentTemplate = tpl;
+    document.querySelectorAll('.slide').forEach(s => {
+      s.classList.remove('tpl-2','tpl-3');
+      if(tpl !== 'tpl-1') s.classList.add(tpl);
+    });
+    document.querySelectorAll('.tpl-btn').forEach(b => b.classList.toggle('active', b.dataset.tpl === tpl));
+    document.querySelectorAll('.slide-headline').forEach(fitHeadline);
   }
 
   function applyLogoToSlides(src){
@@ -506,6 +642,8 @@
     $('cfg-color-2').value = c2; $('cfg-color-2-hex').value = c2;
     $('cfg-color-3').value = c3; $('cfg-color-3-hex').value = c3;
     applyColors(c1, c2, c3);
+    if(cfg.font)     applyFont(cfg.font);
+    if(cfg.template) applyTemplate(cfg.template);
     const logo = localStorage.getItem('instagen_logo');
     if(logo){
       applyLogoToSlides(logo);
@@ -540,6 +678,16 @@
       }
     });
   });
+
+  document.querySelectorAll('.font-btn').forEach(btn => btn.addEventListener('click', () => {
+    applyFont(btn.dataset.font);
+    saveConfig();
+  }));
+
+  document.querySelectorAll('.tpl-btn').forEach(btn => btn.addEventListener('click', () => {
+    applyTemplate(btn.dataset.tpl);
+    saveConfig();
+  }));
 
   $('cfg-logo').addEventListener('change', () => {
     const file = $('cfg-logo').files[0];
@@ -751,6 +899,8 @@
       $('slide'+(i+1)).className = 'slide '+slide.theme;
       $('badge-label-'+(i+1)).textContent = slide.badgeLabel;
     });
+    applyFont(currentFont);
+    applyTemplate(currentTemplate);
     ['myth','truth','advice'].forEach(f => {
       $('label-'+f).textContent  = cfg.fields[f].label;
       $(f).placeholder           = cfg.fields[f].placeholder;
