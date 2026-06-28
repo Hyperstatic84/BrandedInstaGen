@@ -186,9 +186,9 @@
 
   .slide-bg-layer{
     position:absolute;inset:0;background-size:cover;background-position:center;
-    opacity:.16;filter:grayscale(45%);
+    opacity:var(--bg-opacity,.16);filter:grayscale(45%);
   }
-  .slide.dark .slide-bg-layer{opacity:.24;}
+  .slide.dark .slide-bg-layer{opacity:var(--bg-opacity,.24);}
   .slide-badge,.slide-footer{position:relative;z-index:1;}
 
   .slide-footer{
@@ -495,6 +495,10 @@
       <label>Photo de fond (filigrane)</label>
       <input type="file" id="bg-photo" accept="image/*">
       <button type="button" id="bg-remove" style="margin-top:8px;background:#334155;display:none;">Retirer la photo</button>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+        <input type="range" id="bg-opacity" min="0" max="60" step="1" value="16" style="flex:1;accent-color:var(--brand-accent);cursor:pointer;">
+        <span id="bg-opacity-val" style="font-size:12px;color:#94a3b8;font-weight:600;min-width:34px;text-align:right;">16%</span>
+      </div>
     </div>
   </div>
 
@@ -607,7 +611,8 @@
       color3:    $('cfg-color-3').value,
       font:      currentFont,
       template:  currentTemplate,
-      hlStyle:   currentHlStyle
+      hlStyle:   currentHlStyle,
+      bgOpacity: +$('bg-opacity').value
     }));
   }
 
@@ -692,6 +697,7 @@
     if(cfg.font)     applyFont(cfg.font);
     if(cfg.template) applyTemplate(cfg.template);
     if(cfg.hlStyle)  applyHlStyle(cfg.hlStyle);
+    applyBgOpacity(cfg.bgOpacity ?? 16);
     const logo = localStorage.getItem('instagen_logo');
     if(logo){
       applyLogoToSlides(logo);
@@ -1091,6 +1097,16 @@
   });
 
   // ── Photo de fond ──
+  function applyBgOpacity(val){
+    document.documentElement.style.setProperty('--bg-opacity', val / 100);
+    $('bg-opacity').value = val;
+    $('bg-opacity-val').textContent = val + '%';
+  }
+  $('bg-opacity').addEventListener('input', () => {
+    applyBgOpacity(+$('bg-opacity').value);
+    saveConfig();
+  });
+
   const bgLayers = ['bg1','bg2','bg3'].map($);
   $('bg-photo').addEventListener('change', () => {
     const file = $('bg-photo').files[0];
