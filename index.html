@@ -13,11 +13,14 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap">
 <style>
   :root{
-    --nature-50:#EEF7FF;
-    --nature-800:#28394A;
-    --nature-900:#1E2D3D;
-    --orange:#f97316;
-    --orange-600:#ea580c;
+    --brand-accent:#f97316;
+    --brand-dark:#1E2D3D;
+    --brand-light:#EEF7FF;
+    --orange:var(--brand-accent);
+    --orange-600:var(--brand-accent);
+    --nature-50:var(--brand-light);
+    --nature-800:var(--brand-dark);
+    --nature-900:var(--brand-dark);
   }
   *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
   body{
@@ -150,7 +153,7 @@
   .slide.light{background:linear-gradient(to bottom,var(--nature-50),#fff);color:var(--nature-800);}
   .slide.dark{background:var(--nature-900);color:#fff;}
   .slide.orange{background:var(--orange);color:#fff;}
-  .slide.orange .badge-num{background:#fff;color:#14528F;}
+  .slide.orange .badge-num{background:#fff;color:var(--brand-dark);}
   .slide.orange .badge-label{color:#fff;}
   .slide.orange .hl{color:var(--nature-900);}
   .slide.orange .slide-footer{border-top-color:rgba(40,57,74,.2);}
@@ -162,9 +165,9 @@
     display:flex;align-items:center;justify-content:center;color:#fff;font-size:44px;font-weight:800;
   }
   .badge-label{font-size:42px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
-  .slide.light .badge-label{color:#0E3C6B;}
-  .slide.dark .badge-label{color:var(--orange);}
-  .slide.light .badge-num{background:#0E3C6B;}
+  .slide.light .badge-label{color:var(--brand-dark);}
+  .slide.dark .badge-label{color:var(--brand-accent);}
+  .slide.light .badge-num{background:var(--brand-dark);}
 
   .slide-headline{
     font-size:80px;font-weight:800;line-height:1.18;flex:1;min-height:0;overflow:hidden;
@@ -257,10 +260,24 @@
       <input type="url" id="cfg-website" placeholder="monsite.fr" maxlength="100">
     </div>
     <div class="config-field">
-      <label>Couleur de marque</label>
+      <label>Couleur accent</label>
       <div class="color-row">
-        <input type="color" id="cfg-color" value="#f97316">
-        <input type="text" id="cfg-color-hex" class="color-hex" placeholder="#f97316" maxlength="7">
+        <input type="color" id="cfg-color-1" value="#f97316">
+        <input type="text" id="cfg-color-1-hex" class="color-hex" placeholder="#f97316" maxlength="7">
+      </div>
+    </div>
+    <div class="config-field">
+      <label>Couleur foncée</label>
+      <div class="color-row">
+        <input type="color" id="cfg-color-2" value="#1e2d3d">
+        <input type="text" id="cfg-color-2-hex" class="color-hex" placeholder="#1e2d3d" maxlength="7">
+      </div>
+    </div>
+    <div class="config-field">
+      <label>Couleur claire</label>
+      <div class="color-row">
+        <input type="color" id="cfg-color-3" value="#eef7ff">
+        <input type="text" id="cfg-color-3-hex" class="color-hex" placeholder="#eef7ff" maxlength="7">
       </div>
     </div>
     <div class="config-field">
@@ -449,13 +466,17 @@
       specialty: $('cfg-specialty').value.trim(),
       region:    $('cfg-region').value.trim(),
       website:   $('cfg-website').value.trim(),
-      color:     $('cfg-color').value
+      color1:    $('cfg-color-1').value,
+      color2:    $('cfg-color-2').value,
+      color3:    $('cfg-color-3').value
     }));
   }
 
-  function applyColor(hex){
-    document.documentElement.style.setProperty('--orange', hex);
-    document.documentElement.style.setProperty('--orange-600', hex);
+  function applyColors(accent, dark, light){
+    const s = document.documentElement.style;
+    s.setProperty('--brand-accent', accent);
+    s.setProperty('--brand-dark', dark);
+    s.setProperty('--brand-light', light);
   }
 
   function applyLogoToSlides(src){
@@ -478,11 +499,13 @@
     if(cfg.specialty) $('cfg-specialty').value = cfg.specialty;
     if(cfg.region)    $('cfg-region').value    = cfg.region;
     if(cfg.website)   $('cfg-website').value   = cfg.website;
-    if(cfg.color){
-      $('cfg-color').value     = cfg.color;
-      $('cfg-color-hex').value = cfg.color;
-      applyColor(cfg.color);
-    }
+    const c1 = cfg.color1 || cfg.color || '#f97316';
+    const c2 = cfg.color2 || '#1e2d3d';
+    const c3 = cfg.color3 || '#eef7ff';
+    $('cfg-color-1').value = c1; $('cfg-color-1-hex').value = c1;
+    $('cfg-color-2').value = c2; $('cfg-color-2-hex').value = c2;
+    $('cfg-color-3').value = c3; $('cfg-color-3-hex').value = c3;
+    applyColors(c1, c2, c3);
     const logo = localStorage.getItem('instagen_logo');
     if(logo){
       applyLogoToSlides(logo);
@@ -498,20 +521,24 @@
     $(id).addEventListener('input', () => { saveConfig(); updateSlideNames(); buildSlides(); });
   });
 
-  $('cfg-color').addEventListener('input', () => {
-    const hex = $('cfg-color').value;
-    $('cfg-color-hex').value = hex;
-    applyColor(hex);
-    saveConfig();
-  });
-
-  $('cfg-color-hex').addEventListener('input', () => {
-    const hex = $('cfg-color-hex').value;
-    if(/^#[0-9a-fA-F]{6}$/.test(hex)){
-      $('cfg-color').value = hex;
-      applyColor(hex);
+  [
+    ['cfg-color-1','cfg-color-1-hex'],
+    ['cfg-color-2','cfg-color-2-hex'],
+    ['cfg-color-3','cfg-color-3-hex']
+  ].forEach(([pickId, hexId]) => {
+    $(pickId).addEventListener('input', () => {
+      $(hexId).value = $(pickId).value;
+      applyColors($('cfg-color-1').value, $('cfg-color-2').value, $('cfg-color-3').value);
       saveConfig();
-    }
+    });
+    $(hexId).addEventListener('input', () => {
+      const hex = $(hexId).value;
+      if(/^#[0-9a-fA-F]{6}$/.test(hex)){
+        $(pickId).value = hex;
+        applyColors($('cfg-color-1').value, $('cfg-color-2').value, $('cfg-color-3').value);
+        saveConfig();
+      }
+    });
   });
 
   $('cfg-logo').addEventListener('change', () => {
